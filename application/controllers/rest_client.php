@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Rest_client extends CI_Controller{
-	var	$url = 'http://localhost/ci-rest-server/index.php/api';
+	var	$url = 'http://localhost/ci-rest-server/index.php/api/item';
 	var	$username = 'admin';
 	var	$password = '1234';
 	
@@ -17,7 +17,7 @@ class Rest_client extends CI_Controller{
 
 	public function index()
     {
-		$data['items'] = json_decode($this->curl->simple_get($this->url.'/item'));
+		$data['items'] = json_decode($this->curl->simple_get($this->url));
         $this->load->view('rest_client',$data);
     }
 	
@@ -163,14 +163,14 @@ class Rest_client extends CI_Controller{
 	function rest_client_example($id)
 	{
 		$this->load->library('rest', array(
-			'server' => $this->url,
+			'server' => $this->url.'/',
 			//'server' => 'http://localhost/ci_restserver/index.php/api/example/',
 			//'http_user' => 'admin',
 			//'http_pass' => '1234',
 			'http_auth' => 'none'	//'basic' // or 'digest'
 		));
 
-		$user = $this->rest->get('users', array('id' => $id), 'json');
+		$user = $this->rest->get('index.php', array('id' => $id), 'json');
 		//$user = $this->rest->get('users', array('id' => $id), 'json');
 		//$user = $this->rest->get('users', array('id' => $id), 'application/json');
 		
@@ -185,8 +185,11 @@ class Rest_client extends CI_Controller{
 		*/
 		
 		//encode : object -> string; decode : string -> object
+		var_dump($user);
 		$result = json_encode($user);
-		$this->load->view("rest_client", array('result' => $result, 'user' => $user));
+		var_dump($result);
+		echo $result;
+		// $this->load->view("rest_client", array('result' => $result, 'user' => $user));
 		//echo $this->rest->debug();
 		
 	}
@@ -201,11 +204,11 @@ class Rest_client extends CI_Controller{
 			'http_auth' => 'none'	//'basic' // or 'digest'
 		));
 
-		$user = $this->rest->post('item',array(
+		$user = $this->rest->post('index.php',array(
 				'title' => $new_name, 
 				'description' => $new_email), 
 				'json');
-		
+		// debug_to_console("Test");
 		//encode : object -> string; decode : string -> object
 		$result = json_encode($user);
 		echo $new_name.' : '.$new_email.' : '.$result;
@@ -213,4 +216,11 @@ class Rest_client extends CI_Controller{
 		//echo $this->rest->debug();
 	}	
 	
+	// function debug_to_console($data) {
+	// 	$output = $data;
+	// 	if (is_array($output))
+	// 		$output = implode(',', $output);
+	
+	// 	echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
+	// }
 }

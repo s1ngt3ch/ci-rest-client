@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Test_client extends CI_Controller{
-	var	$url = 'http://localhost/ci-rest-server/index.php/api';
+	var	$url = 'http://localhost/ci-rest-server/index.php/api/item';
 	var	$username = 'admin';
 	var	$password = '1234';
 	
@@ -19,17 +19,17 @@ class Test_client extends CI_Controller{
 
 	public function index()
     {
-		$data['items'] = json_decode($this->curl->simple_get($this->url.'/item'));
-        $this->load->view('test_client',$data);
+		$data['items'] = json_decode($this->curl->simple_get($this->url));
+        $this->load->view('display',$data);
     }
 
     function create(){
         if(isset($_POST['submit'])){
             $data = array(
-                'id'       =>  $this->input->post('id'),
+                'id'         =>  $this->input->post('id'),
                 'title'      =>  $this->input->post('title'),
                 'description'=>  $this->input->post('description'));
-            $insert =  $this->curl->simple_post($this->url.'/item', $data, array(CURLOPT_BUFFERSIZE => 10)); 
+            $insert =  $this->curl->simple_post($this->url, $data, array(CURLOPT_BUFFERSIZE => 10)); 
             if($insert)
             {
                 $this->session->set_flashdata('result','Insert successfully');
@@ -49,7 +49,7 @@ class Test_client extends CI_Controller{
                 'id'          =>  $this->input->post('id'),
                 'title'       =>  $this->input->post('title'),
                 'description' =>  $this->input->post('description'));
-            $update =  $this->curl->simple_put($this->url.'/item', $data, array(CURLOPT_BUFFERSIZE => 10)); 
+            $update =  $this->curl->simple_put($this->url.'/index', $data, array(CURLOPT_BUFFERSIZE => 10)); 
             if($update)
             {
                 $this->session->set_flashdata('result','Update successfully');
@@ -59,19 +59,31 @@ class Test_client extends CI_Controller{
             }
             redirect('test_client');
         }else{
-            // $params = array('id'=>  $this->uri->segment(3));
-            $params = array('id' => 7 );
-            $data['items'] = json_decode($this->curl->simple_get($this->url.'/item',$params));
-            // $data['items'] = json_decode($this->curl->simple_get($this->url.'/item/7'));
+            $params = array('id'=>  $this->uri->segment(3));
+            $data['items'] = json_decode($this->curl->simple_get($this->url,$params));
             $this->load->view('edit',$data);
         }
     }
     
-    function delete($id){
-        if(empty($id)){
+    function delete(){
+        $id = $this->uri->segment(3);
+        if(!$id){
             redirect('test_client');
         }else{
-            $delete =  $this->curl->simple_delete($this->url.'/item', array('id'=>$id), array(CURLOPT_BUFFERSIZE => 10)); 
+            // localhost/ci-rest-server/index.php/api/item/index/id/6
+            // array(1) { ["id"]=> string(1) "2" }
+            // $params = array('id'=> $id);
+            // var_dump($params);
+            // $delete =  $this->curl->simple_delete($this->url.'/index', array('id'=>$id), array(CURLOPT_BUFFERSIZE => 10)); 
+            // $delete =  $this->curl->simple_delete($this->url.'/index', $params, array(CURLOPT_BUFFERSIZE => 10)); 
+            // var_dump($delete);
+            // $delete =  $this->curl->simple_delete($this->url.'/index/id/1', array(CURLOPT_BUFFERSIZE => 10)); 
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $this->url.'/index/id/'.$id);
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            $response = curl_exec($curl);
+            curl_close($curl);
             if($delete)
             {
                 $this->session->set_flashdata('result','Delete successfully');
