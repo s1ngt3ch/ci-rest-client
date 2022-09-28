@@ -79,7 +79,8 @@ class Test_client extends CI_Controller{
             // var_dump($delete);
             // $delete =  $this->curl->simple_delete($this->url.'/index/id/1', array(CURLOPT_BUFFERSIZE => 10)); 
             $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, $this->url.'/index/id/'.$id);
+            curl_setopt($curl, CURLOPT_URL, $this->url.'/index/id'.$id);
+            curl_setopt($curl, CURLOPT_URL, $this->url.'/index/'.$id);
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
             $response = curl_exec($curl);
